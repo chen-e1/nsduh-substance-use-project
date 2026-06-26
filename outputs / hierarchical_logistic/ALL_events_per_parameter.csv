@@ -1,0 +1,4 @@
+analysis,model,n_total,n_events,n_nonevents,k_parameters,events_per_parameter,nonevents_per_parameter
+A_heroin_lifetime_users,Model 4 - add treatment and booked,1152,67,1085,15,4.466666666666667,72.33333333333333
+B_heroin_or_cocaine_lifetime_users,Model 4 - add treatment and booked,6660,379,6281,17,22.294117647058822,369.47058823529414
+C_heroin_cocaine_meth_lifetime_users,Model 4 - add treatment and booked,7120,621,6499,21,29.571428571428573,309.4761904761905

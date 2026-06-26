@@ -1,0 +1,4 @@
+analysis,label,outcome,rows_before_complete_case,rows_after_complete_case,rows_removed,n_events,n_nonevents,event_rate_percent
+A_heroin_lifetime_users,Heroin lifetime users,Y_HEROIN_MODEL,1192,1152,40,67,1085,5.82
+B_heroin_or_cocaine_lifetime_users,Heroin or cocaine lifetime users,Y_HC,6825,6660,165,379,6281,5.69
+C_heroin_cocaine_meth_lifetime_users,"Heroin, cocaine or meth lifetime users",Y_HCM,7326,7120,206,621,6499,8.72
