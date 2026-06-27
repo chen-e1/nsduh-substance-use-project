@@ -1,0 +1,206 @@
+
+
+# =====================================================================
+# Random Forest - Drug-Specific Models (Heroin, Cocaine, Meth)
+# Using Full Predictors (Base + Demographics + Geography)
+# =====================================================================
+```{r}
+library(tidyverse)
+library(randomForest)
+
+# 1. טעינת הנתונים (הקובץ המלא הכולל גיאוגרפיה)
+data_full <- read.csv("data/nsduh_clean_with_indexes_geo.csv")
+
+# 2. הגדרת כלל המשתנים המסבירים שייכנסו למודלים
+all_predictors <- c(
+  "EDUHIGHCAT", "ECONOMIC_STATUS_INDEX", "EMPLOYMENT_INDEX", 
+  "ECONOMIC_ASSISTANCE_INDEX", "MENTAL_HEALTH_INDEX", "IRINSUR4", # בסיס
+  "CATAG3", "IRSEX", "IRMARIT",                                    # דמוגרפיה
+  "COUTYP4", "PDEN10"                                             # גיאוגרפיה
+)
+```
+
+
+
+# ==========================================
+# MODEL 1: HEROIN USERS
+# ==========================================
+```{r}
+rf_heroin_data <- data_full %>%
+  filter(!is.na(Y_HEROIN)) %>%
+  dplyr::select(Y_HEROIN, all_of(all_predictors)) %>%
+  na.omit() %>%
+  mutate(across(c(Y_HEROIN, CATAG3, IRSEX, IRMARIT, COUTYP4, PDEN10), as.factor))
+
+min_class_heroin <- min(table(rf_heroin_data$Y_HEROIN))
+
+set.seed(42)
+model_heroin <- randomForest(
+  Y_HEROIN ~ ., 
+  data = rf_heroin_data,
+  ntree = 500,
+  importance = TRUE,
+  sampsize = c(min_class_heroin, min_class_heroin) # איזון המודל
+)
+
+cat("\n--- HEROIN MODEL ---\n")
+print(model_heroin)
+varImpPlot(model_heroin, main = "Feature Importance: Heroin", pch = 19, color = "darkblue")
+```
+
+
+
+# ==========================================
+# MODEL 2: COCAINE USERS
+# ==========================================
+```{r}
+rf_cocaine_data <- data_full %>%
+  filter(!is.na(Y_COCAINE)) %>%
+  dplyr::select(Y_COCAINE, all_of(all_predictors)) %>%
+  na.omit() %>%
+  mutate(across(c(Y_COCAINE, CATAG3, IRSEX, IRMARIT, COUTYP4, PDEN10), as.factor))
+
+min_class_cocaine <- min(table(rf_cocaine_data$Y_COCAINE))
+
+set.seed(42)
+model_cocaine <- randomForest(
+  Y_COCAINE ~ ., 
+  data = rf_cocaine_data,
+  ntree = 500,
+  importance = TRUE,
+  sampsize = c(min_class_cocaine, min_class_cocaine) # איזון המודל
+)
+
+cat("\n--- COCAINE MODEL ---\n")
+print(model_cocaine)
+varImpPlot(model_cocaine, main = "Feature Importance: Cocaine", pch = 19, color = "darkgreen")
+```
+
+
+
+# ==========================================
+# MODEL 3: METH USERS
+# ==========================================
+```{r}
+rf_meth_data <- data_full %>%
+  filter(!is.na(Y_METH)) %>%
+  dplyr::select(Y_METH, all_of(all_predictors)) %>%
+  na.omit() %>%
+  mutate(across(c(Y_METH, CATAG3, IRSEX, IRMARIT, COUTYP4, PDEN10), as.factor))
+
+min_class_meth <- min(table(rf_meth_data$Y_METH))
+
+set.seed(42)
+model_meth <- randomForest(
+  Y_METH ~ ., 
+  data = rf_meth_data,
+  ntree = 500,
+  importance = TRUE,
+  sampsize = c(min_class_meth, min_class_meth) # איזון המודל
+)
+
+cat("\n--- METH MODEL ---\n")
+print(model_meth)
+varImpPlot(model_meth, main = "Feature Importance: Methamphetamine", pch = 19, color = "darkred")
+```
+
+
+# =====================================================================
+# Model Evaluation: Heroin, Cocaine, and Methamphetamine
+# =====================================================================
+```{r}
+# Load relevant libraries for model evaluation
+library(caret)
+library(pROC)
+library(PRROC)
+
+# Helper function for accurate calculation of the PR-AUC metric
+get_pr_auc <- function(model, true_labels) {
+  # Extract probabilities for the positive class ("1")
+  probs <- predict(model, type = "prob")[, "1"]
+  fg <- probs[true_labels == "1"] 
+  bg <- probs[true_labels == "0"] 
+  pr <- pr.curve(scores.class0 = fg, scores.class1 = bg, curve = FALSE)
+  return(pr$auc.integral)
+}
+
+# --- 1. Heroin Model Evaluation ---
+pred_heroin  <- predict(model_heroin)
+cm_heroin    <- confusionMatrix(pred_heroin, rf_heroin_data$Y_HEROIN, positive = "1")
+prob_heroin  <- predict(model_heroin, type = "prob")[, "1"]
+auc_heroin   <- auc(roc(rf_heroin_data$Y_HEROIN, prob_heroin, quiet = TRUE))
+prauc_heroin <- get_pr_auc(model_heroin, rf_heroin_data$Y_HEROIN)
+
+# --- 2. Cocaine Model Evaluation ---
+pred_cocaine <- predict(model_cocaine)
+cm_cocaine   <- confusionMatrix(pred_cocaine, rf_cocaine_data$Y_COCAINE, positive = "1")
+prob_cocaine <- predict(model_cocaine, type = "prob")[, "1"]
+auc_cocaine  <- auc(roc(rf_cocaine_data$Y_COCAINE, prob_cocaine, quiet = TRUE))
+prauc_cocaine <- get_pr_auc(model_cocaine, rf_cocaine_data$Y_COCAINE)
+
+# --- 3. Methamphetamine Model Evaluation ---
+pred_meth    <- predict(model_meth)
+cm_meth      <- confusionMatrix(pred_meth, rf_meth_data$Y_METH, positive = "1")
+prob_meth    <- predict(model_meth, type = "prob")[, "1"]
+auc_meth     <- auc(roc(rf_meth_data$Y_METH, prob_meth, quiet = TRUE))
+prauc_meth   <- get_pr_auc(model_meth, rf_meth_data$Y_METH)
+```
+
+
+# =====================================================================
+# Create a central summary comparison table
+# =====================================================================
+```{r}
+rf_models_evaluation <- data.frame(
+  Model = c("1. Heroin", "2. Cocaine", "3. Methamphetamine"),
+  Accuracy = c(cm_heroin$overall["Accuracy"], cm_cocaine$overall["Accuracy"], cm_meth$overall["Accuracy"]),
+  Balanced_Accuracy = c(cm_heroin$byClass["Balanced Accuracy"], cm_cocaine$byClass["Balanced Accuracy"], cm_meth$byClass["Balanced Accuracy"]),
+  Sensitivity = c(cm_heroin$byClass["Sensitivity"], cm_cocaine$byClass["Sensitivity"], cm_meth$byClass["Sensitivity"]),
+  Specificity = c(cm_heroin$byClass["Specificity"], cm_cocaine$byClass["Specificity"], cm_meth$byClass["Specificity"]),
+  F1_Score = c(cm_heroin$byClass["F1"], cm_cocaine$byClass["F1"], cm_meth$byClass["F1"]),
+  ROC_AUC = c(auc_heroin, auc_cocaine, auc_meth),
+  PR_AUC = c(prauc_heroin, prauc_cocaine, prauc_meth)
+)
+
+# Clean formatting and print the table with 3 decimal places
+rownames(rf_models_evaluation) <- NULL
+rf_models_evaluation[,-1] <- round(rf_models_evaluation[,-1], 3)
+
+cat("\n=========================================================================\n")
+cat("          Performance Comparison Table: Drug-Specific Models             \n")
+cat("=========================================================================\n\n")
+print(rf_models_evaluation)
+```
+
+
+```{r}
+# 1. Create a unified comparison table
+comparison_table <- data.frame(
+  Drug = c("Heroin", "Cocaine", "Methamphetamine"),
+  # Values from the Logistic Regression PDF
+  Logistic_AUC = c(0.73, 0.649, 0.73), 
+  # Values from the Random Forest models
+  RF_AUC = c(auc_heroin, auc_cocaine, auc_meth) 
+)
+
+# 2. Display the table
+print(comparison_table)
+
+# 3. Create a comparative bar chart
+library(ggplot2)
+library(tidyr)
+
+# Reshape data to long format for ggplot
+comparison_long <- comparison_table %>%
+  pivot_longer(cols = c(Logistic_AUC, RF_AUC), names_to = "Model_Type", values_to = "AUC")
+
+# Generate the plot
+ggplot(comparison_long, aes(x = Drug, y = AUC, fill = Model_Type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme_minimal() +
+  labs(title = "Model Performance Comparison (AUC) by Drug Type",
+       y = "Area Under the Curve (AUC)",
+       x = "Drug Type",
+       fill = "Model Strategy")
+```
+
