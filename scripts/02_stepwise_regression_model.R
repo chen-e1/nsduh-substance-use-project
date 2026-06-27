@@ -9,6 +9,10 @@
 library(dplyr)
 library(MASS)
 
+if (!exists("data")) {
+  data <- read.csv("data/nsduh_clean_with_indexes_geo_id.csv")
+}
+
 # =====================================================
 # Variables included in every model
 # =====================================================
