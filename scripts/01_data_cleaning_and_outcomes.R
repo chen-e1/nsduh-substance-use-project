@@ -23,14 +23,6 @@ data <- data %>%
     )
   )
 
-data <- data %>%
-  mutate(
-    Y_METH = case_when(
-      meth_ever & meth_month ~ 1,
-      meth_ever & !meth_month ~ 0,
-      TRUE ~ NA_real_
-    )
-  )
 # ------------------------------------------------------------
 # Meth - helper variables
 # ------------------------------------------------------------
@@ -209,3 +201,5 @@ data <- data %>%
         na.rm = TRUE
       )
   )
+
+write.csv(data, "data/nsduh_clean_with_indexes_geo_id.csv", row.names = FALSE)
