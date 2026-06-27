@@ -7,8 +7,7 @@
 # associated with current/recent use in the past 30 days among people
 # with lifetime use history?
 #
-# Input expected in same folder:
-#   nsduh_clean_with_indexes_geo_id.csv
+# Input expected at: data/nsduh_clean_with_indexes_geo_id.csv
 #
 # Outcomes used:
 #   Y_HEROIN  = 1 if lifetime heroin use + heroin use in past 30 days;
