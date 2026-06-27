@@ -1,8 +1,7 @@
 #load library
 library(tidyverse)
 
-data <- read.csv(file.choose())
-
+data <- read.csv("data/nsduh_clean_with_indexes_geo_id.csv")
 
 #create y for heroin
 data <- data %>%
