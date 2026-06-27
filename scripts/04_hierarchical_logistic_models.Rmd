@@ -65,8 +65,8 @@ has_MASS <- requireNamespace("MASS", quietly = TRUE)
 # ------------------------------------------------------------
 # 1. Settings
 # ------------------------------------------------------------
-input_file <- "nsduh_clean_with_indexes_geo_id.csv"
-output_dir <- "current_use_hierarchical_outputs"
+input_file <- "data/nsduh_clean_with_indexes_geo_id.csv"
+output_dir <- "outputs/hierarchical_logistic"
 
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
