@@ -21,7 +21,7 @@ library(rpart)
 library(rpart.plot)
 
 # Read the correct dataset containing geographic variables to avoid missing column errors
-data_full <- read.csv("data/nsduh_clean_with_indexes_geo.csv")
+data_full <- read.csv("data/nsduh_clean_with_indexes_geo_id.csv")
 
 # Define all predictors (Base + Demographics + Geography)
 all_predictors <- c(
