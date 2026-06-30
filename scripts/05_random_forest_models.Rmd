@@ -203,7 +203,7 @@ partialPlot(x = model_all_natural,
             which.class = "1", # Probability of being a user
             main = "Partial Dependence: Mental Health Index (Full Model)",
             xlab = "Mental Health Index (Normalized)",
-            ylab = "Log-odds of Continued Drug Use",
+            ylab = "Log-odds of Active Past-Month Use",
             lwd = 3, col = "darkred")
 ```
 
