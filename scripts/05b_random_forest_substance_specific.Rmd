@@ -9,8 +9,7 @@ library(tidyverse)
 library(randomForest)
 
 # 1. טעינת הנתונים (הקובץ המלא הכולל גיאוגרפיה)
-data_full <- read.csv("data/nsduh_clean_with_indexes_geo.csv")
-
+data_full <- read.csv("data/nsduh_clean_with_indexes_geo_id.csv")
 # 2. הגדרת כלל המשתנים המסבירים שייכנסו למודלים
 all_predictors <- c(
   "EDUHIGHCAT", "ECONOMIC_STATUS_INDEX", "EMPLOYMENT_INDEX", 
