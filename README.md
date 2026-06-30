@@ -315,14 +315,14 @@ Finally, some high-risk populations are not fully represented in NSDUH, so the f
 
 ---
 
-## Yali Gamliel, Lee Mizrahi, Chen Einy, Bar Hana Yehezkel
+## Authors
 
 This project was completed as part of the CIS2601 final project.
 
 Team members:
 
 ```text
-[Add team member names here]
+Yali Gamliel, Lee Mizrahi, Chen Einy, Bar Hana Yehezkel
 ```
 
 ---
